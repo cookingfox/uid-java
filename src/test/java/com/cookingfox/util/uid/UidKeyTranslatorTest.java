@@ -10,13 +10,13 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Unit tests for UidKeyTranslator class.
+ * Unit tests for {@link UidKeyTranslator}.
  */
 public class UidKeyTranslatorTest {
 
-    private static final Uid EXAMPLE_UID_A = Uid.create();
-    private static final Uid EXAMPLE_UID_B = Uid.create();
-    private static final Uid EXAMPLE_UID_C = Uid.create();
+    private static final Uid EXAMPLE_UID_A = Uid.create("EXAMPLE_UID_A");
+    private static final Uid EXAMPLE_UID_B = Uid.create("EXAMPLE_UID_B");
+    private static final Uid EXAMPLE_UID_C = Uid.create("EXAMPLE_UID_C");
     private static final int EXAMPLE_INT_A = 1;
     private static final int EXAMPLE_INT_B = 2;
     private static final int EXAMPLE_INT_C = 3;
@@ -29,9 +29,9 @@ public class UidKeyTranslatorTest {
 
     @Before
     public void setUp() throws Exception {
-        translator = new UidKeyTranslator<Integer>();
+        translator = new UidKeyTranslator<>();
 
-        Map<Uid, Integer> exampleMap = new LinkedHashMap<Uid, Integer>();
+        Map<Uid, Integer> exampleMap = new LinkedHashMap<>();
         exampleMap.put(EXAMPLE_UID_A, EXAMPLE_INT_A);
         exampleMap.put(EXAMPLE_UID_B, EXAMPLE_INT_B);
         exampleMap.put(EXAMPLE_UID_C, EXAMPLE_INT_C);
@@ -42,6 +42,24 @@ public class UidKeyTranslatorTest {
     @After
     public void tearDown() throws Exception {
         translator = null;
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // TESTS: CONSTRUCTORS
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    public void constructor_should_add_map_to_dictionary() throws Exception {
+        Map<Uid, Integer> exampleMap = new LinkedHashMap<>();
+        exampleMap.put(EXAMPLE_UID_A, EXAMPLE_INT_A);
+        exampleMap.put(EXAMPLE_UID_B, EXAMPLE_INT_B);
+        exampleMap.put(EXAMPLE_UID_C, EXAMPLE_INT_C);
+
+        UidKeyTranslator<Integer> testTranslator = new UidKeyTranslator<>(exampleMap);
+
+        testTranslator.fromUid(EXAMPLE_UID_A);
+        testTranslator.fromUid(EXAMPLE_UID_B);
+        testTranslator.fromUid(EXAMPLE_UID_C);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -58,7 +76,7 @@ public class UidKeyTranslatorTest {
         int keyE = 5;
         int keyF = 6;
 
-        Map<Uid, Integer> map = new LinkedHashMap<Uid, Integer>();
+        Map<Uid, Integer> map = new LinkedHashMap<>();
         map.put(uidD, keyD);
         map.put(uidE, keyE);
         map.put(uidF, keyF);
@@ -68,7 +86,7 @@ public class UidKeyTranslatorTest {
 
     @Test(expected = UidKeyTranslatorException.class)
     public void addToDictionary_should_throw_if_duplicate_key() throws Exception {
-        Map<Uid, Integer> map = new LinkedHashMap<Uid, Integer>();
+        Map<Uid, Integer> map = new LinkedHashMap<>();
         map.put(EXAMPLE_UID_A, 12345);
 
         translator.addToDictionary(map);
@@ -80,7 +98,7 @@ public class UidKeyTranslatorTest {
         Uid uidE = Uid.create();
         Uid uidF = Uid.create();
 
-        Map<Uid, Integer> map = new LinkedHashMap<Uid, Integer>();
+        Map<Uid, Integer> map = new LinkedHashMap<>();
         map.put(uidD, EXAMPLE_INT_A);
         map.put(uidE, EXAMPLE_INT_B);
         map.put(uidF, EXAMPLE_INT_C);
@@ -90,8 +108,17 @@ public class UidKeyTranslatorTest {
 
     @Test(expected = UidKeyTranslatorException.class)
     public void addToDictionary_should_throw_if_null_key() throws Exception {
-        Map<Uid, Integer> map = new LinkedHashMap<Uid, Integer>();
+        Map<Uid, Integer> map = new LinkedHashMap<>();
         map.put(null, 12345);
+
+        translator.addToDictionary(map);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test(expected = UidKeyTranslatorException.class)
+    public void addToDictionary_should_throw_if_invalid_key() throws Exception {
+        Map map = new LinkedHashMap();
+        map.put(123, 456);
 
         translator.addToDictionary(map);
     }
@@ -122,24 +149,24 @@ public class UidKeyTranslatorTest {
         String value_b = "b";
         String value_c = "c";
 
-        Map<Uid, Object> values = new LinkedHashMap<Uid, Object>();
+        Map<Uid, Object> values = new LinkedHashMap<>();
         values.put(EXAMPLE_UID_A, value_a);
         values.put(EXAMPLE_UID_B, value_b);
         values.put(EXAMPLE_UID_C, value_c);
 
-        Map<Integer, Object> expected = new LinkedHashMap<Integer, Object>();
+        Map<Integer, Object> expected = new LinkedHashMap<>();
         expected.put(EXAMPLE_INT_A, value_a);
         expected.put(EXAMPLE_INT_B, value_b);
         expected.put(EXAMPLE_INT_C, value_c);
 
-        Map<Integer, Object> result = translator.fromUidMap(values);
+        Map<Integer, ?> result = translator.fromUidMap(values);
 
         assertEquals(expected, result);
     }
 
     @Test(expected = UidKeyTranslatorException.class)
     public void fromUidMap_should_throw_if_uid_not_in_dictionary() throws Exception {
-        Map<Uid, Object> values = new LinkedHashMap<Uid, Object>();
+        Map<Uid, Object> values = new LinkedHashMap<>();
         values.put(EXAMPLE_UID_A, "a");
         values.put(Uid.create(), "b");
         values.put(EXAMPLE_UID_C, "c");
@@ -173,24 +200,24 @@ public class UidKeyTranslatorTest {
         String value_b = "b";
         String value_c = "c";
 
-        Map<Integer, Object> values = new LinkedHashMap<Integer, Object>();
+        Map<Integer, Object> values = new LinkedHashMap<>();
         values.put(EXAMPLE_INT_A, value_a);
         values.put(EXAMPLE_INT_B, value_b);
         values.put(EXAMPLE_INT_C, value_c);
 
-        Map<Uid, Object> expected = new LinkedHashMap<Uid, Object>();
+        Map<Uid, Object> expected = new LinkedHashMap<>();
         expected.put(EXAMPLE_UID_A, value_a);
         expected.put(EXAMPLE_UID_B, value_b);
         expected.put(EXAMPLE_UID_C, value_c);
 
-        Map<Uid, Object> result = translator.toUidMap(values);
+        Map<Uid, ?> result = translator.toUidMap(values);
 
         assertEquals(expected, result);
     }
 
     @Test(expected = UidKeyTranslatorException.class)
     public void toUidMap_should_throw_if_key_not_in_dictionary() throws Exception {
-        Map<Integer, Object> values = new LinkedHashMap<Integer, Object>();
+        Map<Integer, Object> values = new LinkedHashMap<>();
         values.put(EXAMPLE_INT_A, "a");
         values.put(-1, "b");
         values.put(EXAMPLE_INT_C, "c");
@@ -204,9 +231,9 @@ public class UidKeyTranslatorTest {
 
     @Test
     public void toString_should_return_dictionary_string_representation() throws Exception {
-        translator = new UidKeyTranslator<Integer>();
+        translator = new UidKeyTranslator<>();
 
-        Map<Uid, Integer> exampleMap = new LinkedHashMap<Uid, Integer>();
+        Map<Uid, Integer> exampleMap = new LinkedHashMap<>();
         exampleMap.put(EXAMPLE_UID_A, EXAMPLE_INT_A);
         exampleMap.put(EXAMPLE_UID_B, EXAMPLE_INT_B);
         exampleMap.put(EXAMPLE_UID_C, EXAMPLE_INT_C);

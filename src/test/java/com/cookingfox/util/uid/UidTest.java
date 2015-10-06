@@ -7,7 +7,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 /**
- * Unit tests for Uid class.
+ * Unit tests for {@link Uid}.
  */
 public class UidTest {
 
@@ -30,7 +30,7 @@ public class UidTest {
     public void create_should_accept_name_and_use_for_toString() throws Exception {
         String toString = Uid.create("myUid").toString();
 
-        assertEquals("Uid{myUid}", toString);
+        assertEquals("Uid{'myUid'}", toString);
     }
 
     @Test

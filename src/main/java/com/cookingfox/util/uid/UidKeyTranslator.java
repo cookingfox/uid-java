@@ -1,6 +1,5 @@
 package com.cookingfox.util.uid;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,19 +13,59 @@ import java.util.Map;
  */
 public class UidKeyTranslator<T> {
 
+    //----------------------------------------------------------------------------------------------
+    // PROPERTIES
+    //----------------------------------------------------------------------------------------------
+
     /**
      * A map of unique ids to a user-defined data type.
      */
-    private final Map<Uid, T> dictionary = new LinkedHashMap<Uid, T>();
+    protected final Map<Uid, T> dictionary = new LinkedHashMap<>();
+
+    //----------------------------------------------------------------------------------------------
+    // CONSTRUCTORS
+    //----------------------------------------------------------------------------------------------
 
     /**
-     * Adds a UID-key map to the dictionary. Throws if a key was previously added.
+     * Creates a new instance.
      */
-    public void addToDictionary(Map<Uid, T> map) {
-        if (map.containsKey(null)) {
-            throw new UidKeyTranslatorException("The map cannot contain a `null` value for the Uid");
-        } else if (containsDuplicateKeys(map, dictionary)) {
-            throw new UidKeyTranslatorException("The map contains keys that are already present in the dictionary");
+    public UidKeyTranslator() {
+    }
+
+    /**
+     * Creates a new instance, calling {@link #addToDictionary(Map)} for the provided map.
+     *
+     * @param map The values to add to the dictionary.
+     * @throws UidKeyTranslatorException when the map contains invalid keys or values.
+     */
+    public UidKeyTranslator(Map<Uid, T> map) throws UidKeyTranslatorException {
+        addToDictionary(map);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // PUBLIC METHODS
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * Adds a UID-key map to the dictionary.
+     *
+     * @param map The values to add to the dictionary.
+     * @throws UidKeyTranslatorException when the map contains invalid keys or values.
+     */
+    @SuppressWarnings("SuspiciousMethodCalls")
+    public void addToDictionary(Map<Uid, T> map) throws UidKeyTranslatorException {
+        for (Map.Entry entry : map.entrySet()) {
+            final Object key = entry.getKey();
+
+            if (!Uid.class.isInstance(key)) {
+                String type = (key == null ? null : key.getClass().getSimpleName());
+
+                throw new UidKeyTranslatorException(String.format("The map can only contain keys " +
+                        "that are Uid instances (%s)", type));
+            } else if (dictionary.containsKey(key)) {
+                throw new UidKeyTranslatorException("The following key is already present in the " +
+                        "dictionary: " + key);
+            }
         }
 
         dictionary.putAll(map);
@@ -34,12 +73,16 @@ public class UidKeyTranslator<T> {
 
     /**
      * Returns the key that is mapped to this unique id.
+     *
+     * @param uid The uid to translate.
+     * @return The key that is mapped to the provided uid.
+     * @throws UidKeyTranslatorException when the provided uid is not in the dictionary.
      */
-    public T fromUid(Uid uid) {
+    public T fromUid(Uid uid) throws UidKeyTranslatorException {
         T key = dictionary.get(uid);
 
         if (null == key) {
-            throw new UidKeyTranslatorException("Requested Uid is not in the dictionary");
+            throw new UidKeyTranslatorException("Provided Uid is not in the dictionary: " + uid);
         }
 
         return key;
@@ -48,11 +91,15 @@ public class UidKeyTranslator<T> {
     /**
      * Accepts a map of unique ids to values and returns a new map which replaces the unique ids
      * with the keys from the dictionary.
+     *
+     * @param map Map of Uid -> value.
+     * @return Map of Key -> value.
+     * @throws UidKeyTranslatorException when a provided uid is not in the dictionary.
      */
-    public Map<T, Object> fromUidMap(Map<Uid, Object> map) {
-        Map<T, Object> result = new LinkedHashMap<T, Object>();
+    public Map<T, ?> fromUidMap(Map<Uid, ?> map) throws UidKeyTranslatorException {
+        Map<T, Object> result = new LinkedHashMap<>();
 
-        for (Map.Entry<Uid, Object> entry : map.entrySet()) {
+        for (Map.Entry<Uid, ?> entry : map.entrySet()) {
             result.put(fromUid(entry.getKey()), entry.getValue());
         }
 
@@ -61,25 +108,33 @@ public class UidKeyTranslator<T> {
 
     /**
      * Returns the unique id that is mapped to this key.
+     *
+     * @param key The key to translate to Uid.
+     * @return The uid that is mapped to the provided key.
+     * @throws UidKeyTranslatorException when the provided key is not in the dictionary.
      */
-    public Uid toUid(T key) {
+    public Uid toUid(T key) throws UidKeyTranslatorException {
         for (Map.Entry<Uid, T> entry : dictionary.entrySet()) {
             if (key.equals(entry.getValue())) {
                 return entry.getKey();
             }
         }
 
-        throw new UidKeyTranslatorException("Requested key is not in the dictionary");
+        throw new UidKeyTranslatorException("Provided key is not in the dictionary: " + key);
     }
 
     /**
      * Accepts a map of keys to values and returns a new map which replaces the keys with the unique
      * ids from the dictionary.
+     *
+     * @param map Map of Key -> value.
+     * @return Map of Uid -> value.
+     * @throws UidKeyTranslatorException when the provided key is not in the dictionary.
      */
-    public Map<Uid, Object> toUidMap(Map<T, Object> map) {
-        Map<Uid, Object> result = new LinkedHashMap<Uid, Object>();
+    public Map<Uid, ?> toUidMap(Map<T, Object> map) throws UidKeyTranslatorException {
+        Map<Uid, Object> result = new LinkedHashMap<>();
 
-        for (Map.Entry<T, Object> entry : map.entrySet()) {
+        for (Map.Entry<T, ?> entry : map.entrySet()) {
             result.put(toUid(entry.getKey()), entry.getValue());
         }
 
@@ -89,16 +144,6 @@ public class UidKeyTranslator<T> {
     @Override
     public String toString() {
         return dictionary.toString();
-    }
-
-    /**
-     * Returns whether map `a` and `b` have items in common.
-     *
-     * @param a The target map to check against.
-     * @param b The base map to check against.
-     */
-    private boolean containsDuplicateKeys(Map a, Map b) {
-        return !Collections.disjoint(a.keySet(), b.keySet());
     }
 
 }

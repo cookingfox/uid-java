@@ -66,7 +66,7 @@ public final class Uid {
     @Override
     public String toString() {
         if (name != null) {
-            return "Uid{" + name + '}';
+            return "Uid{'" + name + "'}";
         }
 
         return "Uid{" + id + '}';
