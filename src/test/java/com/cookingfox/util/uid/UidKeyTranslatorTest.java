@@ -17,9 +17,9 @@ public class UidKeyTranslatorTest {
     private static final Uid EXAMPLE_UID_A = Uid.create("EXAMPLE_UID_A");
     private static final Uid EXAMPLE_UID_B = Uid.create("EXAMPLE_UID_B");
     private static final Uid EXAMPLE_UID_C = Uid.create("EXAMPLE_UID_C");
-    private static final int EXAMPLE_INT_A = 1;
-    private static final int EXAMPLE_INT_B = 2;
-    private static final int EXAMPLE_INT_C = 3;
+    private static final int EXAMPLE_INT_A = 123;
+    private static final int EXAMPLE_INT_B = 456;
+    private static final int EXAMPLE_INT_C = 789;
 
     private UidKeyTranslator<Integer> translator;
 
@@ -66,42 +66,10 @@ public class UidKeyTranslatorTest {
     // TESTS: ADD TO DICTIONARY
     //----------------------------------------------------------------------------------------------
 
-    @Test
-    public void addToDictionary_should_accept_new_values() throws Exception {
-        Uid uidD = Uid.create();
-        Uid uidE = Uid.create();
-        Uid uidF = Uid.create();
-
-        int keyD = 4;
-        int keyE = 5;
-        int keyF = 6;
-
-        Map<Uid, Integer> map = new LinkedHashMap<>();
-        map.put(uidD, keyD);
-        map.put(uidE, keyE);
-        map.put(uidF, keyF);
-
-        translator.addToDictionary(map);
-    }
-
     @Test(expected = UidKeyTranslatorException.class)
     public void addToDictionary_should_throw_if_duplicate_key() throws Exception {
         Map<Uid, Integer> map = new LinkedHashMap<>();
         map.put(EXAMPLE_UID_A, 12345);
-
-        translator.addToDictionary(map);
-    }
-
-    @Test
-    public void addToDictionary_should_accept_duplicate_values() throws Exception {
-        Uid uidD = Uid.create();
-        Uid uidE = Uid.create();
-        Uid uidF = Uid.create();
-
-        Map<Uid, Integer> map = new LinkedHashMap<>();
-        map.put(uidD, EXAMPLE_INT_A);
-        map.put(uidE, EXAMPLE_INT_B);
-        map.put(uidF, EXAMPLE_INT_C);
 
         translator.addToDictionary(map);
     }
@@ -114,11 +82,29 @@ public class UidKeyTranslatorTest {
         translator.addToDictionary(map);
     }
 
+    @Test(expected = UidKeyTranslatorException.class)
+    public void addToDictionary_should_throw_if_null_value() throws Exception {
+        Map<Uid, Integer> map = new LinkedHashMap<>();
+        map.put(Uid.create(), null);
+
+        translator.addToDictionary(map);
+    }
+
     @SuppressWarnings("unchecked")
     @Test(expected = UidKeyTranslatorException.class)
     public void addToDictionary_should_throw_if_invalid_key() throws Exception {
         Map map = new LinkedHashMap();
         map.put(123, 456);
+
+        translator.addToDictionary(map);
+    }
+
+    @Test(expected = UidKeyTranslatorException.class)
+    public void addToDictionary_should_throw_if_duplicate_value() throws Exception {
+        Map<Uid, Integer> map = new LinkedHashMap<>();
+        map.put(Uid.create(), EXAMPLE_INT_A);
+        map.put(Uid.create(), EXAMPLE_INT_B);
+        map.put(Uid.create(), EXAMPLE_INT_C);
 
         translator.addToDictionary(map);
     }

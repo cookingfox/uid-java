@@ -55,16 +55,27 @@ public class UidKeyTranslator<T> {
     @SuppressWarnings("SuspiciousMethodCalls")
     public void addToDictionary(Map<Uid, T> map) throws UidKeyTranslatorException {
         for (Map.Entry entry : map.entrySet()) {
-            final Object key = entry.getKey();
+            final Object uid = entry.getKey();
+            final Object value = entry.getValue();
 
-            if (!Uid.class.isInstance(key)) {
-                String type = (key == null ? null : key.getClass().getSimpleName());
+            // validate Uid in map
+            if (!Uid.class.isInstance(uid)) {
+                String type = (uid == null ? null : uid.getClass().getSimpleName());
 
                 throw new UidKeyTranslatorException(String.format("The map can only contain keys " +
                         "that are Uid instances (%s)", type));
-            } else if (dictionary.containsKey(key)) {
-                throw new UidKeyTranslatorException("The following key is already present in the " +
-                        "dictionary: " + key);
+            } else if (dictionary.containsKey(uid)) {
+                throw new UidKeyTranslatorException("The following Uid is already present in the " +
+                        "dictionary: " + uid);
+            }
+
+            // validate value in map
+            if (value == null) {
+                throw new UidKeyTranslatorException(String.format("The map cannot contain `null` " +
+                        "values (error for %s)", uid));
+            } else if (dictionary.containsValue(value)) {
+                throw new UidKeyTranslatorException("The following 'key' (dictionary value) is " +
+                        "already present in the dictionary: " + value);
             }
         }
 
