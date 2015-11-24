@@ -1,5 +1,10 @@
 # Uid: Change Log
 
+## [0.3.0](../../tree/v0.3.0) (2015-11-24)
+
+- UidKeyTranslator now validates uniqueness of dictionary values, will throw otherwise.
+
+
 ## [0.2.0](../../tree/v0.2.0) (2015-10-06)
 
 - UidKeyTranslator constructor now accepts a dictionary.

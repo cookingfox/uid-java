@@ -26,7 +26,7 @@ and add the project to the `dependencies` block in your `build.gradle`:
 
 ```groovy
 dependencies {
-    compile 'com.cookingfox:uid-java:0.2.0'
+    compile 'com.cookingfox:uid-java:0.3.0'
 }
 ```
 
@@ -49,6 +49,6 @@ and add the project declaration to your `pom.xml`:
 <dependency>
     <groupId>com.cookingfox</groupId>
     <artifactId>uid-java</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
